@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
 
+### Fixed
+
+- `arena_version.h` now defines `ARENA_VERSION` as a single string literal and `ARENA_VERSION_MAJOR`, `_MINOR` and `_PATCH` as integers, so the macros compile when used.
+
 ## [1.1.8] - 2026-03-10
 
 ### Fixed
