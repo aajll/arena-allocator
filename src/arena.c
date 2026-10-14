@@ -128,6 +128,23 @@ arena_compute_total_size(void **const result, const size_t element_size,
         return ARENA_STATUS_OK;
 }
 
+/**
+ * @brief Record @p status as the arena's last allocation status.
+ *
+ * @param[in,out] arena   Arena to update; may be NULL.
+ * @param[in]     status  Status to record.
+ *
+ * @return @p status unchanged, so callers can return through this helper.
+ */
+static arena_status_t
+arena_record(arena_t *const arena, const arena_status_t status)
+{
+        if (arena != NULL) {
+                arena->last_status = status;
+        }
+        return status;
+}
+
 /* ------------------------------------------------------------------ */
 /*   PUBLIC API IMPLEMENTATION                                        */
 /* ------------------------------------------------------------------ */
@@ -158,6 +175,7 @@ arena_init(arena_t *const arena, void *const buffer, const size_t size)
         arena->current_offset = 0U;
         arena->high_water = 0U;
         arena->poison = ARENA_CFG_POISON_PATTERN;
+        arena->last_status = ARENA_STATUS_OK;
 
         /* Optional fill with poison to catch use-after-reset in tests */
 #if (ARENA_CFG_DEBUG_POISON != 0)
@@ -167,8 +185,8 @@ arena_init(arena_t *const arena, void *const buffer, const size_t size)
         return ARENA_STATUS_OK;
 }
 
-arena_status_t
-arena_alloc(arena_t *const arena, void **const result, const size_t size,
+static arena_status_t
+alloc_block(arena_t *const arena, void **const result, const size_t size,
             size_t alignment)
 {
         uintptr_t start_addr;
@@ -229,13 +247,13 @@ arena_alloc(arena_t *const arena, void **const result, const size_t size,
         return ARENA_STATUS_OK;
 }
 
-arena_status_t
-arena_alloc_zero(arena_t *const arena, void **const result, const size_t size,
+static arena_status_t
+alloc_block_zero(arena_t *const arena, void **const result, const size_t size,
                  const size_t alignment)
 {
         arena_status_t st;
 
-        st = arena_alloc(arena, result, size, alignment);
+        st = alloc_block(arena, result, size, alignment);
         if (st != ARENA_STATUS_OK) {
                 return st;
         }
@@ -244,10 +262,10 @@ arena_alloc_zero(arena_t *const arena, void **const result, const size_t size,
         return ARENA_STATUS_OK;
 }
 
-arena_status_t
-arena_alloc_array(arena_t *const arena, void **const result,
-                  const size_t element_size, const size_t alignment,
-                  const size_t count)
+static arena_status_t
+alloc_array(arena_t *const arena, void **const result,
+            const size_t element_size, const size_t alignment,
+            const size_t count, const bool zero)
 {
         arena_status_t st;
         size_t total_size;
@@ -257,7 +275,34 @@ arena_alloc_array(arena_t *const arena, void **const result,
                 return st;
         }
 
-        return arena_alloc(arena, result, total_size, alignment);
+        if (zero) {
+                return alloc_block_zero(arena, result, total_size, alignment);
+        }
+        return alloc_block(arena, result, total_size, alignment);
+}
+
+arena_status_t
+arena_alloc(arena_t *const arena, void **const result, const size_t size,
+            const size_t alignment)
+{
+        return arena_record(arena, alloc_block(arena, result, size, alignment));
+}
+
+arena_status_t
+arena_alloc_zero(arena_t *const arena, void **const result, const size_t size,
+                 const size_t alignment)
+{
+        return arena_record(arena,
+                            alloc_block_zero(arena, result, size, alignment));
+}
+
+arena_status_t
+arena_alloc_array(arena_t *const arena, void **const result,
+                  const size_t element_size, const size_t alignment,
+                  const size_t count)
+{
+        return arena_record(arena, alloc_array(arena, result, element_size,
+                                               alignment, count, false));
 }
 
 arena_status_t
@@ -265,15 +310,36 @@ arena_alloc_array_zero(arena_t *const arena, void **const result,
                        const size_t element_size, const size_t alignment,
                        const size_t count)
 {
-        arena_status_t st;
-        size_t total_size;
+        return arena_record(arena, alloc_array(arena, result, element_size,
+                                               alignment, count, true));
+}
 
-        st = arena_compute_total_size(result, element_size, count, &total_size);
-        if (st != ARENA_STATUS_OK) {
-                return st;
-        }
+void *
+arena_alloc_array_ptr(arena_t *const arena, const size_t element_size,
+                      const size_t alignment, const size_t count)
+{
+        void *ptr = NULL;
 
-        return arena_alloc_zero(arena, result, total_size, alignment);
+        (void)arena_alloc_array(arena, &ptr, element_size, alignment, count);
+        return ptr;
+}
+
+void *
+arena_alloc_array_zero_ptr(arena_t *const arena, const size_t element_size,
+                           const size_t alignment, const size_t count)
+{
+        void *ptr = NULL;
+
+        (void)arena_alloc_array_zero(arena, &ptr, element_size, alignment,
+                                     count);
+        return ptr;
+}
+
+arena_status_t
+arena_get_last_status(const arena_t *const arena)
+{
+        return (arena != NULL) ? arena->last_status
+                               : ARENA_STATUS_NULL_POINTER;
 }
 
 arena_marker_t
