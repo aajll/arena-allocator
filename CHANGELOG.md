@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - `arena.h` and `arena_cfg.h` install under `${includedir}/arena/`, next to `arena_version.h` and where the pkg-config file already points.
+- CI gates line and branch coverage at 100 %. Two defensive checks that no input could reach are removed: the internal size helper's NULL check and the post-alignment wrap check, which `align_up()` already prevents.
 - `arena_t` gains a `last_status` field. Its fields remain internal, so code that declares arenas and uses the API is unaffected.
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
 

@@ -11,6 +11,7 @@ static bool test_null_pointers(void);
 static bool test_invalid_argument(void);
 static bool test_query_null_helpers(void);
 static bool test_failed_alloc_clears_result(void);
+static bool test_remaining_error_paths(void);
 
 static bool
 test_invalid_alignment(void)
@@ -264,6 +265,69 @@ test_failed_alloc_clears_result(void)
         return passed;
 }
 
+static bool
+test_remaining_error_paths(void)
+{
+        static uint8_t buffer[DEMO_BUF_SIZE];
+        arena_t arena;
+        arena_t top;
+        void *ptr = NULL;
+        bool passed = true;
+
+        if ((arena_init(NULL, buffer, sizeof(buffer))
+             != ARENA_STATUS_NULL_POINTER)
+            || (arena_init(&arena, NULL, sizeof(buffer))
+                != ARENA_STATUS_NULL_POINTER)) {
+                printf("FAIL: arena_init accepted a NULL arena or buffer\n");
+                passed = false;
+        }
+
+        if (arena_init(&arena, buffer, sizeof(buffer)) != ARENA_STATUS_OK) {
+                printf("FAIL: arena_init failed in "
+                       "test_remaining_error_paths\n");
+                return false;
+        }
+
+        if (arena_alloc_array(&arena, NULL, 4U, 0U, 1U)
+            != ARENA_STATUS_NULL_POINTER) {
+                printf("FAIL: arena_alloc_array accepted a NULL result\n");
+                passed = false;
+        }
+
+        if ((arena_alloc_array(&arena, &ptr, 0U, 0U, 1U)
+             != ARENA_STATUS_INVALID_ARGUMENT)
+            || (arena_alloc_array(&arena, &ptr, 4U, 0U, 0U)
+                != ARENA_STATUS_INVALID_ARGUMENT)) {
+                printf("FAIL: arena_alloc_array accepted a zero size or "
+                       "count\n");
+                passed = false;
+        }
+
+        /* Must return without dereferencing. */
+        arena_rewind(NULL, 0U);
+        arena_reset(NULL);
+
+        /* A buffer ending at the top of the address space: aligning the
+         * bump pointer would wrap, so the allocation must fail cleanly.
+         * The buffer is never dereferenced. */
+        if (arena_init(&top, (void *)(UINTPTR_MAX - 15U), 15U)
+            != ARENA_STATUS_OK) {
+                printf("FAIL: arena_init rejected a buffer at the top of "
+                       "the address space\n");
+                passed = false;
+        } else if ((arena_alloc(&top, &ptr, 1U, 32U)
+                    != ARENA_STATUS_OUT_OF_MEMORY)
+                   || (ptr != NULL)) {
+                printf("FAIL: alignment overflow did not fail cleanly\n");
+                passed = false;
+        }
+
+        if (passed) {
+                printf("PASS: test_remaining_error_paths\n");
+        }
+        return passed;
+}
+
 bool
 run_api_tests(void)
 {
@@ -275,6 +339,7 @@ run_api_tests(void)
         all_passed = test_invalid_argument() && all_passed;
         all_passed = test_query_null_helpers() && all_passed;
         all_passed = test_failed_alloc_clears_result() && all_passed;
+        all_passed = test_remaining_error_paths() && all_passed;
 
         return all_passed;
 }
