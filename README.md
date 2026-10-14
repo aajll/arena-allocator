@@ -41,6 +41,10 @@ Add this repo as a wrap dependency or subproject. The library exposes an
 arena_dep = dependency('arena-allocator', fallback : ['arena-allocator', 'arena_dep'])
 ```
 
+### Installed library
+
+`meson install` places the static library, a pkg-config file and the headers under `${includedir}/arena/`. Include `<arena/arena.h>` with the include root on the search path, or `"arena.h"` with the pkg-config flags, which point into `arena/`. Forwarding headers at `${includedir}/arena.h` and `${includedir}/arena_cfg.h` keep `#include <arena.h>` working without pkg-config; they are deprecated and will be removed in the next major release.
+
 ## Quick Start
 
 ```c
