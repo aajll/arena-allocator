@@ -11,6 +11,10 @@
  * (except when the pool is exhausted).  Deallocation is performed by a
  * whole arena reset or by rewinding to a previously saved checkpoint.
  *
+ * Sizes, alignments, markers and usage figures count bytes in the C
+ * sense: the units @c sizeof yields, each @c CHAR_BIT bits wide.  On a
+ * 16-bit-MAU target where @c CHAR_BIT is 16, one byte is one 16-bit word.
+ *
  *********************************************************************/
 
 /* MISRA C:2012 Dir 1.1: use standard include guard instead of #pragma once */
@@ -46,11 +50,11 @@
  * directly by user code.
  */
 typedef struct arena_s {
-        uint8_t *start;        /**< Start of the backing buffer           */
+        unsigned char *start;  /**< Start of the backing buffer           */
         size_t capacity;       /**< Total buffer size in bytes            */
         size_t current_offset; /**< Next free offset from @ref start      */
         size_t high_water;     /**< Maximum observed used size            */
-        uint8_t poison;        /**< Debug poison pattern cache            */
+        unsigned char poison;  /**< Debug poison pattern cache            */
 } arena_t;
 
 /**

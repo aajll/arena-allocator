@@ -149,6 +149,15 @@ meson compile -C build
 meson test -C build
 ```
 
+## Platform support
+
+The library is portable C11 with no target-specific code paths, and works wherever `CHAR_BIT` is 8 or 16. Sizes, alignments, markers and usage figures count `sizeof` units, so on a 16-bit-MAU target one byte is one 16-bit word and `ARENA_CFG_DEFAULT_ALIGNMENT` is measured in words.
+
+| Toolchain | Target | Status |
+|---|---|---|
+| GCC, Clang | x86_64 Linux | Host tests (CI) |
+| TI C2000 CGT 22.6 and 25.11 LTS | 16-bit-MAU DSP family | Library cross-build, COFF and EABI (CI) |
+
 ## Notes
 
 | Topic | Note |
