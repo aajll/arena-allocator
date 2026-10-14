@@ -46,12 +46,12 @@ _Static_assert((ARENA_CFG_DEFAULT_ALIGNMENT != 0U)
 /* ------------------------------------------------------------------ */
 
 /**
- * @brief Check if a value is a power of two.
+ * @brief Check if a non-zero value is a power of two.
  *
- * Zero is *not* a power of two.  The function is used to validate the
- * @p alignment parameter.
+ * The function is used to validate the @p alignment parameter after a zero
+ * alignment has been replaced by the default.
  *
- * @param[in] value   Value to test.
+ * @param[in] value   Value to test; must not be zero.
  *
  * @return true if @p value is a power of two, otherwise false.
  */
@@ -59,7 +59,7 @@ static inline bool
 is_power_of_two(const size_t value)
 {
         /* MISRA Rule 12.2: bitwise operations are allowed on unsigned types */
-        return ((value != 0U) && ((value & (value - 1U)) == 0U));
+        return ((value & (value - 1U)) == 0U);
 }
 
 /**
@@ -111,10 +111,6 @@ arena_compute_total_size(void **const result, const size_t element_size,
                 return ARENA_STATUS_NULL_POINTER;
         }
         *result = NULL;
-
-        if (total_size == NULL) {
-                return ARENA_STATUS_NULL_POINTER;
-        }
 
         if ((element_size == 0U) || (count == 0U)) {
                 return ARENA_STATUS_INVALID_ARGUMENT;
@@ -222,7 +218,8 @@ alloc_block(arena_t *const arena, void **const result, const size_t size,
         cur_addr = start_addr + arena->current_offset;
         aligned_addr = align_up(cur_addr, alignment);
 
-        if ((aligned_addr == UINTPTR_MAX) || (aligned_addr < start_addr)) {
+        /* align_up() never wraps, so aligned_addr >= cur_addr >= start_addr */
+        if (aligned_addr == UINTPTR_MAX) {
                 return ARENA_STATUS_OUT_OF_MEMORY;
         }
 
