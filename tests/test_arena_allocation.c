@@ -13,6 +13,7 @@ static bool test_alignment_mask_correctness(void);
 static bool test_init_size_overflow(void);
 static bool test_zero_alloc_helpers(void);
 static bool test_typed_helper_macros(void);
+static bool test_last_status_and_ptr_api(void);
 
 typedef struct {
         _Alignas(16) uint8_t bytes[16];
@@ -384,6 +385,102 @@ test_typed_helper_macros(void)
         return passed;
 }
 
+static bool
+test_last_status_and_ptr_api(void)
+{
+        static uint8_t buffer[64U];
+        arena_t arena;
+        arena_t *const no_arena = NULL;
+        arena_status_t st;
+        void *raw = NULL;
+        uint32_t *word = NULL;
+        uint8_t *bytes = NULL;
+        size_t i;
+        bool passed = true;
+
+        if ((arena_get_last_status(NULL) != ARENA_STATUS_NULL_POINTER)
+            || (arena_alloc_array_ptr(NULL, 4U, 0U, 1U) != NULL)
+            || (arena_alloc_array_zero_ptr(NULL, 4U, 0U, 1U) != NULL)) {
+                printf("FAIL: NULL arena not rejected by pointer API\n");
+                passed = false;
+        }
+
+        word = (uint32_t *)buffer;
+        st = ARENA_ALLOC_OBJECT(no_arena, &word, uint32_t);
+        if ((st != ARENA_STATUS_NULL_POINTER) || (word != NULL)) {
+                printf("FAIL: ARENA_ALLOC_OBJECT accepted a NULL arena\n");
+                passed = false;
+        }
+
+        st = arena_init(&arena, buffer, sizeof(buffer));
+        if ((st != ARENA_STATUS_OK)
+            || (arena_get_last_status(&arena) != ARENA_STATUS_OK)) {
+                printf("FAIL: arena_init did not reset the last status\n");
+                return false;
+        }
+
+        (void)arena_alloc(&arena, &raw, 4U, 3U);
+        if (arena_get_last_status(&arena) != ARENA_STATUS_INVALID_ALIGNMENT) {
+                printf("FAIL: arena_alloc status not recorded\n");
+                passed = false;
+        }
+
+        (void)arena_alloc(&arena, NULL, 4U, 0U);
+        if (arena_get_last_status(&arena) != ARENA_STATUS_NULL_POINTER) {
+                printf("FAIL: NULL result status not recorded\n");
+                passed = false;
+        }
+
+        (void)arena_alloc_zero(&arena, &raw, sizeof(buffer) + 1U, 0U);
+        if (arena_get_last_status(&arena) != ARENA_STATUS_OUT_OF_MEMORY) {
+                printf("FAIL: arena_alloc_zero status not recorded\n");
+                passed = false;
+        }
+
+        (void)memset(buffer, 0xFF, sizeof(buffer));
+        bytes = arena_alloc_array_zero_ptr(&arena, 1U, 0U, 8U);
+        if ((bytes == NULL)
+            || (arena_get_last_status(&arena) != ARENA_STATUS_OK)) {
+                printf("FAIL: arena_alloc_array_zero_ptr failed\n");
+                passed = false;
+        } else {
+                for (i = 0U; i < 8U; ++i) {
+                        if (bytes[i] != 0U) {
+                                printf("FAIL: arena_alloc_array_zero_ptr did "
+                                       "not zero byte %zu\n",
+                                       i);
+                                passed = false;
+                                break;
+                        }
+                }
+        }
+
+        if ((arena_alloc_array_ptr(&arena, SIZE_MAX, 0U, 2U) != NULL)
+            || (arena_get_last_status(&arena)
+                != ARENA_STATUS_INVALID_ARGUMENT)) {
+                printf("FAIL: arena_alloc_array_ptr overflow not rejected\n");
+                passed = false;
+        }
+
+        st = ARENA_ALLOC_ARRAY_ZERO(&arena, &bytes, uint8_t, sizeof(buffer));
+        if ((st != ARENA_STATUS_OUT_OF_MEMORY) || (bytes != NULL)) {
+                printf("FAIL: ARENA_ALLOC_ARRAY_ZERO did not report OOM\n");
+                passed = false;
+        }
+
+        word = NULL;
+        st = ARENA_ALLOC_OBJECT_ZERO(&arena, &word, uint32_t);
+        if ((st != ARENA_STATUS_OK) || (word == NULL) || (*word != 0U)) {
+                printf("FAIL: ARENA_ALLOC_OBJECT_ZERO failed\n");
+                passed = false;
+        }
+
+        if (passed) {
+                printf("PASS: test_last_status_and_ptr_api\n");
+        }
+        return passed;
+}
+
 bool
 run_allocation_tests(void)
 {
@@ -395,6 +492,7 @@ run_allocation_tests(void)
         all_passed = test_init_size_overflow() && all_passed;
         all_passed = test_zero_alloc_helpers() && all_passed;
         all_passed = test_typed_helper_macros() && all_passed;
+        all_passed = test_last_status_and_ptr_api() && all_passed;
 
         return all_passed;
 }

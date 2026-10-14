@@ -37,6 +37,26 @@
  */
 
 /* ------------------------------------------------------------------ */
+/*   RETURN STATUS                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Status values returned by the arena API.
+ *
+ * All public functions returning a status use this enumeration.
+ */
+typedef enum {
+        ARENA_STATUS_OK = 0, /**< Operation completed successfully */
+        ARENA_STATUS_NULL_POINTER =
+            1, /**< A required pointer argument was NULL */
+        ARENA_STATUS_OUT_OF_MEMORY =
+            2, /**< Not enough space left in the arena */
+        ARENA_STATUS_INVALID_ALIGNMENT =
+            3, /**< Alignment is not a power of two or is zero */
+        ARENA_STATUS_INVALID_ARGUMENT = 4 /**< size or buffer length is zero */
+} arena_status_t;
+
+/* ------------------------------------------------------------------ */
 /*   ARENA TYPE                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -55,6 +75,7 @@ typedef struct arena_s {
         size_t current_offset; /**< Next free offset from @ref start      */
         size_t high_water;     /**< Maximum observed used size            */
         unsigned char poison;  /**< Debug poison pattern cache            */
+        arena_status_t last_status; /**< Status of the last allocation    */
 } arena_t;
 
 /**
@@ -77,26 +98,6 @@ typedef size_t arena_marker_t;
  * before using the marker.
  */
 #define ARENA_MARKER_INVALID ((arena_marker_t)(SIZE_MAX))
-
-/* ------------------------------------------------------------------ */
-/*   RETURN STATUS                                                    */
-/* ------------------------------------------------------------------ */
-
-/**
- * @brief Status values returned by the arena API.
- *
- * All public functions returning a status use this enumeration.
- */
-typedef enum {
-        ARENA_STATUS_OK = 0, /**< Operation completed successfully */
-        ARENA_STATUS_NULL_POINTER =
-            1, /**< A required pointer argument was NULL */
-        ARENA_STATUS_OUT_OF_MEMORY =
-            2, /**< Not enough space left in the arena */
-        ARENA_STATUS_INVALID_ALIGNMENT =
-            3, /**< Alignment is not a power of two or is zero */
-        ARENA_STATUS_INVALID_ARGUMENT = 4 /**< size or buffer length is zero */
-} arena_status_t;
 
 /* ------------------------------------------------------------------ */
 /*   PUBLIC FUNCTION PROTOTYPES                                        */
@@ -334,36 +335,113 @@ extern size_t arena_get_high_water(const arena_t *const arena);
 extern size_t arena_get_capacity(const arena_t *const arena);
 
 /**
+ * @brief Allocate an array and return the pointer directly.
+ *
+ * This is @ref arena_alloc_array() with the result returned instead of
+ * written through a @c void ** out-parameter, so it can be assigned to any
+ * object pointer type without a cast.  The status is recorded on the arena
+ * and read with @ref arena_get_last_status().
+ *
+ * @param[in,out] arena         Pointer to an already initialised arena
+ * @param[in]     element_size  Size of each element in bytes (must be > 0)
+ * @param[in]     alignment     Desired alignment in bytes (must be a power of
+ *                              two, 0 means default alignment)
+ * @param[in]     count         Number of elements to allocate (must be > 0)
+ *
+ * @return Pointer to the allocated block, or NULL on any failure.
+ */
+extern void *arena_alloc_array_ptr(arena_t *const arena,
+                                   size_t element_size, size_t alignment,
+                                   size_t count);
+
+/**
+ * @brief Allocate a zero-initialised array and return the pointer directly.
+ *
+ * This is @ref arena_alloc_array_zero() with the result returned instead of
+ * written through a @c void ** out-parameter.  The status is recorded on the
+ * arena and read with @ref arena_get_last_status().
+ *
+ * @param[in,out] arena         Pointer to an already initialised arena
+ * @param[in]     element_size  Size of each element in bytes (must be > 0)
+ * @param[in]     alignment     Desired alignment in bytes (must be a power of
+ *                              two, 0 means default alignment)
+ * @param[in]     count         Number of elements to allocate (must be > 0)
+ *
+ * @return Pointer to the zeroed block, or NULL on any failure.
+ */
+extern void *arena_alloc_array_zero_ptr(arena_t *const arena,
+                                        size_t element_size, size_t alignment,
+                                        size_t count);
+
+/**
+ * @brief Query the status of the most recent allocation on the arena.
+ *
+ * Every allocation function records its result on the arena, including
+ * calls that fail.  @ref arena_init() sets it to @ref ARENA_STATUS_OK.
+ *
+ * @param[in] arena  Pointer to an arena
+ *
+ * @return Status of the last allocation call, or
+ *         @ref ARENA_STATUS_NULL_POINTER if @p arena is NULL.
+ */
+extern arena_status_t arena_get_last_status(const arena_t *const arena);
+
+/*
+ * The typed macros allocate into a real void * object inside the library and
+ * assign the result to *(result) by ordinary conversion, so no object is
+ * accessed through an incompatible pointer type.  @p arena is evaluated twice:
+ * once for the allocation and once to read its status.  It must not have side
+ * effects.
+ */
+
+/**
  * @brief Allocate one typed object and store the pointer in a typed variable.
  *
  * Pass the address of a typed pointer variable, for example
  * `my_type_t *ptr = NULL;` followed by
  * `ARENA_ALLOC_OBJECT(&arena, &ptr, my_type_t);`.
+ *
+ * @return The @ref arena_status_t of the allocation.  On failure *(result)
+ *         is NULL.
  */
 #define ARENA_ALLOC_OBJECT(arena, result, type)                                \
-        arena_alloc((arena), (void **)(result), sizeof(type), _Alignof(type))
+        ((*(result) = arena_alloc_array_ptr((arena), sizeof(type),             \
+                                            _Alignof(type), 1U)),             \
+         arena_get_last_status(arena))
 
 /**
  * @brief Allocate an array of typed objects and store the pointer.
+ *
+ * @return The @ref arena_status_t of the allocation.  On failure *(result)
+ *         is NULL.
  */
 #define ARENA_ALLOC_ARRAY(arena, result, type, count)                          \
-        arena_alloc_array((arena), (void **)(result), sizeof(type),            \
-                          _Alignof(type), (count))
+        ((*(result) = arena_alloc_array_ptr((arena), sizeof(type),             \
+                                            _Alignof(type), (count))),        \
+         arena_get_last_status(arena))
 
 /**
  * @brief Allocate one zero-initialised typed object and store the pointer.
+ *
+ * @return The @ref arena_status_t of the allocation.  On failure *(result)
+ *         is NULL.
  */
 #define ARENA_ALLOC_OBJECT_ZERO(arena, result, type)                           \
-        arena_alloc_zero((arena), (void **)(result), sizeof(type),             \
-                         _Alignof(type))
+        ((*(result) = arena_alloc_array_zero_ptr((arena), sizeof(type),        \
+                                                 _Alignof(type), 1U)),        \
+         arena_get_last_status(arena))
 
 /**
  * @brief Allocate a zero-initialised array of typed objects and store the
  * pointer.
+ *
+ * @return The @ref arena_status_t of the allocation.  On failure *(result)
+ *         is NULL.
  */
 #define ARENA_ALLOC_ARRAY_ZERO(arena, result, type, count)                     \
-        arena_alloc_array_zero((arena), (void **)(result), sizeof(type),       \
-                               _Alignof(type), (count))
+        ((*(result) = arena_alloc_array_zero_ptr((arena), sizeof(type),        \
+                                                 _Alignof(type), (count))),   \
+         arena_get_last_status(arena))
 
 /**
  * @}

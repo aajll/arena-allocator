@@ -64,14 +64,14 @@ int main(void)
         }
 
         /* Allocate memory */
-        st = arena_alloc(&arena, (void **)&p1, 100U, 0U);
+        st = ARENA_ALLOC_ARRAY(&arena, &p1, uint8_t, 100U);
         st = ARENA_ALLOC_ARRAY(&arena, &p2, uint32_t, 50U);
 
         /* Save checkpoint */
         marker = arena_get_marker(&arena);
 
         /* Allocate more */
-        st = arena_alloc(&arena, &p3, 300U, 0U);
+        st = ARENA_ALLOC_ARRAY(&arena, &p3, uint8_t, 300U);
 
         /* Rewind to checkpoint (releases p3) */
         arena_rewind(&arena, marker);
@@ -100,7 +100,7 @@ arena_status_t decode_packet(arena_t *const arena)
                 return ARENA_STATUS_NULL_POINTER;
         }
 
-        st = arena_alloc(arena, (void **)&workspace, 64U, 4U);
+        st = ARENA_ALLOC_ARRAY(arena, &workspace, uint8_t, 64U);
         if (st != ARENA_STATUS_OK) {
                 return st;
         }
@@ -124,6 +124,10 @@ uint16_t *table = NULL;
 st = ARENA_ALLOC_OBJECT(&arena, &sample, sample_t);
 st = ARENA_ALLOC_ARRAY_ZERO(&arena, &table, uint16_t, 32U);
 ```
+
+Each macro evaluates to the `arena_status_t` of the allocation and sets the pointer to NULL on failure. The pointer is assigned by ordinary conversion from `void *`, so passing the address of anything other than an object pointer fails to compile. The `arena` argument is evaluated twice and must not have side effects.
+
+Prefer the macros or the `_ptr` functions to calling `arena_alloc()` with `(void **)&typed_ptr`. That cast makes the library store a `void *` into an object of another pointer type, which is undefined behaviour under the C aliasing rules.
 
 ## Configuration
 
@@ -226,7 +230,17 @@ allocated bytes.
 ```
 
 These wrappers infer `sizeof(type)` and `_Alignof(type)` for common object and
-array allocations.
+array allocations, and evaluate to the allocation status.
+
+```c
+void *arena_alloc_array_ptr(arena_t *arena, size_t element_size,
+                            size_t alignment, size_t count);
+void *arena_alloc_array_zero_ptr(arena_t *arena, size_t element_size,
+                                 size_t alignment, size_t count);
+arena_status_t arena_get_last_status(const arena_t *arena);
+```
+
+The `_ptr` functions return the block, or NULL on failure, so the result can be assigned to any object pointer without a cast. Every allocation function records its status on the arena; `arena_get_last_status()` reads it, and returns `ARENA_STATUS_NULL_POINTER` for a NULL arena.
 
 ### Checkpointing
 
