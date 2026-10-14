@@ -12,7 +12,6 @@ A deterministic arena (bump) allocator in C for safety-critical embedded systems
 - **High-water tracking** — monitor maximum memory usage for static analysis.
 - **Typed helpers** — optional object/array wrappers remove repetitive size/alignment code.
 - **Zeroing helpers** — opt-in zero-initialised allocation for state that must start clean.
-- **MISRA C:2012 compliant** — suitable for IEC 61508 SIL 2/3 environments.
 - **Debug poisoning** — optional fill with known patterns to detect use-after-free.
 
 ## Installation
