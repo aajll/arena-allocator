@@ -11,10 +11,6 @@
  * (except when the pool is exhausted).  Deallocation is performed by a
  * whole arena reset or by rewinding to a previously saved checkpoint.
  *
- * The implementation follows the MISRA C:2012 guidelines and can
- * therefore be used as a building block for IEC 61508 SIL 2/3
- * applications.
- *
  *********************************************************************/
 
 /* MISRA C:2012 Dir 1.1: use standard include guard instead of #pragma once */
