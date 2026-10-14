@@ -28,9 +28,7 @@
  *********************************************************************/
 
 #include "arena.h"
-#include <limits.h>
 #include <stdbool.h>
-_Static_assert(CHAR_BIT == 8, "Arena allocator requires an 8-bit byte");
 
 /* ------------------------------------------------------------------ */
 /*   COMPILE-TIME VALIDATION                                          */
@@ -95,9 +93,9 @@ align_up(const uintptr_t address, const size_t alignment)
  * @param[in] pattern Fill pattern.
  */
 static void
-arena_fill(void *const start, const size_t size, const uint8_t pattern)
+arena_fill(void *const start, const size_t size, const unsigned char pattern)
 {
-        uint8_t *p = (uint8_t *)start;
+        unsigned char *p = (unsigned char *)start;
         size_t i;
 
         for (i = 0U; i < size; ++i) {
@@ -155,7 +153,7 @@ arena_init(arena_t *const arena, void *const buffer, const size_t size)
                 return ARENA_STATUS_INVALID_ARGUMENT;
         }
 
-        arena->start = (uint8_t *)buffer;
+        arena->start = (unsigned char *)buffer;
         arena->capacity = size;
         arena->current_offset = 0U;
         arena->high_water = 0U;
