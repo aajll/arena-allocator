@@ -12,7 +12,8 @@ import tempfile
 
 
 def find_single_path(root: pathlib.Path, pattern: str) -> pathlib.Path:
-    matches = sorted(root.rglob(pattern))
+    matches = sorted(path for path in root.rglob("*")
+                     if path.as_posix().endswith("/" + pattern))
     if len(matches) != 1:
         print(
             f"FAIL: expected exactly one match for {pattern!r} under {root}, "
@@ -52,27 +53,43 @@ def main() -> int:
             check=True,
         )
 
-        include_dir = find_single_path(destdir, "arena.h").parent
+        header = find_single_path(destdir, "arena/arena.h")
+        include_root = header.parent.parent
         lib_path = find_single_path(destdir, "libarena.a")
 
-        subprocess.run(
-            [
-                compiler,
-                "-std=c11",
-                "-Wall",
-                "-Wextra",
-                "-Werror",
-                str(consumer),
-                "-I",
-                str(include_dir),
-                str(lib_path),
-                "-o",
-                str(exe_path),
-            ],
-            check=True,
-        )
+        for name in ("arena_cfg.h", "arena_version.h"):
+            if not (header.parent / name).is_file():
+                print(f"FAIL: {name} not installed under arena/",
+                      file=sys.stderr)
+                return 1
 
-        subprocess.run([str(exe_path)], check=True)
+        # Subdirectory path, root forwarding header, and the pkg-config
+        # include path (which points into arena/).
+        variants = (
+            ("subdir", include_root, []),
+            ("root-forwarder", include_root, ["-DSMOKE_ROOT_INCLUDE"]),
+            ("pkg-config", header.parent, ["-DSMOKE_ROOT_INCLUDE"]),
+        )
+        for label, include_dir, defines in variants:
+            subprocess.run(
+                [
+                    compiler,
+                    "-std=c11",
+                    "-Wall",
+                    "-Wextra",
+                    "-Werror",
+                    *defines,
+                    str(consumer),
+                    "-I",
+                    str(include_dir),
+                    str(lib_path),
+                    "-o",
+                    str(exe_path),
+                ],
+                check=True,
+            )
+            subprocess.run([str(exe_path)], check=True)
+            print(f"PASS: arena_install_smoke ({label})")
 
     print("PASS: arena_install_smoke")
     return 0

@@ -32,7 +32,11 @@ arena_lib = static_library(
 
 arena_dep = declare_dependency(include_directories: arena_inc, link_with: arena_lib)
 
-install_headers('include/arena.h', 'include/arena_cfg.h')
+install_headers('include/arena.h', 'include/arena_cfg.h', subdir: 'arena')
+
+# Deprecated: keep #include <arena.h> working for consumers that add only the
+# include root to their search path. Removed in the next major release.
+install_headers('compat/arena.h', 'compat/arena_cfg.h')
 
 # === pkg-config ===============================================================
 

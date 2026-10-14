@@ -14,8 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- `arena.h` and `arena_cfg.h` install under `${includedir}/arena/`, next to `arena_version.h` and where the pkg-config file already points.
 - `arena_t` gains a `last_status` field. Its fields remain internal, so code that declares arenas and uses the API is unaffected.
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
+
+### Deprecated
+
+- The forwarding headers installed at `${includedir}/arena.h` and `${includedir}/arena_cfg.h`. Include `<arena/arena.h>` or use the pkg-config include path; the forwarders will be removed in the next major release.
 
 ### Fixed
 

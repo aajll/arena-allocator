@@ -3,7 +3,13 @@
  * @brief Minimal consumer used to validate staged installs.
  *********************************************************************/
 
+#if defined(SMOKE_ROOT_INCLUDE)
 #include <arena.h>
+#else
+#include <arena/arena.h>
+#include <arena/arena_version.h>
+_Static_assert(ARENA_VERSION_MAJOR >= 1, "arena_version.h is usable");
+#endif
 #include <stdint.h>
 
 int
