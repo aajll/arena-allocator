@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file test_arena.c
  * @brief Test runner for the arena allocator unit suite.
  *********************************************************************/

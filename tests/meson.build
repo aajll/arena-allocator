@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 inc = include_directories('../include', '../config')
 python = import('python').find_installation('python3')
 

@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file test_arena_poison.c
  * @brief Debug-poison regression tests for the arena allocator.
  *

@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file test_arena.h
  * @brief Shared declarations for the arena unit test suite.
  *********************************************************************/

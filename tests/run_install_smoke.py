@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
 """Stage an install and compile a minimal external consumer."""
 
 from __future__ import annotations
