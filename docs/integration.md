@@ -24,7 +24,7 @@ Keep the two headers in the same directory, because `arena.h` includes `arena_cf
 #include "arena.h"
 ```
 
-`arena_version.h` exists only in Meson builds, which generate it.
+`arena.h` defines the version macros described in [api.md](api.md#version).
 
 ## Meson subproject
 
@@ -34,7 +34,7 @@ Put the repository in `subprojects/arena-allocator`, as a checkout or through a 
 arena_dep = dependency('arena', fallback: ['arena-allocator', 'arena_dep'])
 ```
 
-`dependency('arena')` finds an installed package through `pkg-config`, and otherwise falls back to the subproject's `arena_dep` variable, which links the static library and adds `include/`. The generated `arena_version.h` is not on that include path.
+`dependency('arena')` finds an installed package through `pkg-config`, and otherwise falls back to the subproject's `arena_dep` variable, which links the static library and adds `include/`.
 
 | Option | Default | Effect |
 | --- | --- | --- |
@@ -49,15 +49,14 @@ meson install -C build
 cc app.c $(pkg-config --cflags --libs arena) -o app
 ```
 
-The install contains the static archive `libarena.a`, the headers and `arena_version.h` in an `arena/` subdirectory, and `arena.pc`. The `pkg-config` flags point into `arena/`, so include the headers by name, or include `<arena/arena.h>` with only the include root on the search path:
+The install contains the static archive `libarena.a`, the headers in an `arena/` subdirectory, and `arena.pc`. The `pkg-config` flags point into `arena/`, so include the headers by name, or include `<arena/arena.h>` with only the include root on the search path:
 
 <!-- snippet: skip -->
 ```c
 #include "arena.h"
-#include "arena_version.h"
 ```
 
-`arena_version.h` defines `ARENA_VERSION` as the version string and `ARENA_VERSION_MAJOR`, `ARENA_VERSION_MINOR` and `ARENA_VERSION_PATCH` as integers.
+`arena_version.h` is installed beside it as a deprecated header that includes `arena.h`.
 
 Forwarding headers at `${includedir}/arena.h` and `${includedir}/arena_cfg.h` keep `#include <arena.h>` working without `pkg-config`. They are deprecated and will be removed in the next major release.
 
