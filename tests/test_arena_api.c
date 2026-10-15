@@ -5,6 +5,7 @@
  * @brief API validation tests for the arena allocator.
  *********************************************************************/
 
+#include "arena_version.h"
 #include "test_arena.h"
 
 static bool test_invalid_alignment(void);
@@ -14,6 +15,7 @@ static bool test_invalid_argument(void);
 static bool test_query_null_helpers(void);
 static bool test_failed_alloc_clears_result(void);
 static bool test_remaining_error_paths(void);
+static bool test_version_macros(void);
 
 static bool
 test_invalid_alignment(void)
@@ -330,6 +332,30 @@ test_remaining_error_paths(void)
         return passed;
 }
 
+/* The deprecated version header still exposes the macros from arena.h. */
+static bool
+test_version_macros(void)
+{
+        bool passed = true;
+
+        if (ARENA_VERSION_NUMBER
+            != ((ARENA_VERSION_MAJOR * 10000L) + (ARENA_VERSION_MINOR * 100L)
+                + ARENA_VERSION_PATCH)) {
+                printf("FAIL: ARENA_VERSION_NUMBER does not match its parts\n");
+                passed = false;
+        }
+
+        if (ARENA_VERSION_STRING[0] == '\0') {
+                printf("FAIL: ARENA_VERSION_STRING is empty\n");
+                passed = false;
+        }
+
+        if (passed) {
+                printf("PASS: test_version_macros\n");
+        }
+        return passed;
+}
+
 bool
 run_api_tests(void)
 {
@@ -342,6 +368,7 @@ run_api_tests(void)
         all_passed = test_query_null_helpers() && all_passed;
         all_passed = test_failed_alloc_clears_result() && all_passed;
         all_passed = test_remaining_error_paths() && all_passed;
+        all_passed = test_version_macros() && all_passed;
 
         return all_passed;
 }

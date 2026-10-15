@@ -29,6 +29,33 @@
 #include <stdint.h> /* uintptr_t      */
 
 /* ------------------------------------------------------------------ */
+/*   VERSION                                                          */
+/* ------------------------------------------------------------------ */
+/**
+ * @name Version
+ * @brief Release of this header, for diagnostics and @c #if checks.
+ *
+ * @details
+ *    @c ARENA_VERSION_NUMBER is @c MAJOR*10000 @c + @c MINOR*100
+ *    @c + @c PATCH with type @c long, so it cannot overflow where @c int is
+ *    16 bits. The Meson build fails to configure when these values differ
+ *    from the project version.
+ * @{
+ */
+/* cppcheck-suppress-begin misra-c2012-2.5 ; @deviation Public version macros
+ * for consumer diagnostics and #if checks; the library does not use them. */
+#define ARENA_VERSION_MAJOR  1
+#define ARENA_VERSION_MINOR  2
+#define ARENA_VERSION_PATCH  0
+#define ARENA_VERSION        "1.2.0"
+#define ARENA_VERSION_STRING ARENA_VERSION
+#define ARENA_VERSION_NUMBER                                                   \
+        ((ARENA_VERSION_MAJOR * 10000L) + (ARENA_VERSION_MINOR * 100L)         \
+         + ARENA_VERSION_PATCH)
+/* cppcheck-suppress-end misra-c2012-2.5 ; @deviation As above. */
+/** @} */
+
+/* ------------------------------------------------------------------ */
 /*   Doxygen group                                                    */
 /* ------------------------------------------------------------------ */
 /**

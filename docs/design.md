@@ -70,7 +70,7 @@ An arena is not safe to use from two contexts at once, and that includes queries
 
 ## MISRA C:2023
 
-The library is analysed with [`misch`](https://pypi.org/project/misch/), a cppcheck-based MISRA C:2023 checker, over `include/` and `src/`, once with the default configuration and once with `ARENA_CFG_DEBUG_POISON` enabled. Each run has its own baseline of accepted findings in `analysis/baseline/`, and CI fails on any finding outside it. The default build has 43 findings:
+The library is analysed with [`misch`](https://pypi.org/project/misch/), a cppcheck-based MISRA C:2023 checker, over `include/` and `src/`, once with the default configuration and once with `ARENA_CFG_DEBUG_POISON` enabled. Each run has its own baseline of accepted findings in `analysis/baseline/`, and CI fails on any finding outside it. The version macros in `arena.h` carry an inline deviation of Rule 2.5 (unused macro), because they exist for consumers and the library does not use them. The default build has 43 findings:
 
 | Rule | Findings | Cause |
 | --- | --- | --- |

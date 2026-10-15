@@ -205,3 +205,25 @@ const size_t needed = arena_get_high_water(&probe);
 ```
 
 The figure includes the alignment padding, which depends on where the buffer is placed. Declare the trial and production buffers with `_Alignas` at least as strict as the largest alignment the workload requests, here 8, and the padding is the same in both.
+
+## Version
+
+`arena.h` defines the release it belongs to, so a copied-in header still identifies itself:
+
+<!-- snippet: skip -->
+```c
+#define ARENA_VERSION_MAJOR 1
+#define ARENA_VERSION_MINOR 2
+#define ARENA_VERSION_PATCH 0
+#define ARENA_VERSION "1.2.0"
+```
+
+`ARENA_VERSION_NUMBER` is `MAJOR * 10000 + MINOR * 100 + PATCH` as a `long`, so it holds any version where `int` is 16 bits. Compare it in the preprocessor to require a minimum release:
+
+```c
+#if ARENA_VERSION_NUMBER < 10200L
+#error "arena 1.2.0 or later is required"
+#endif
+```
+
+`ARENA_VERSION_STRING` is the same string as `ARENA_VERSION`. `arena_version.h` is a deprecated header that includes `arena.h`, kept so existing includes compile until the next major release.

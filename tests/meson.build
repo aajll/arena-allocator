@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 
-inc = include_directories('../include', '../config')
+inc = include_directories('../include')
 python = import('python').find_installation('python3')
 
 test_exe = executable('test_arena',
