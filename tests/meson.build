@@ -56,3 +56,29 @@ if get_option('b_sanitize') == 'none' and not get_option('b_coverage')
        args : [files('run_install_smoke.py'), meson.project_source_root(),
                meson.project_build_root()])
 endif
+
+# Every C code block in the README, CONTRIBUTING.md and docs/ compiles against
+# the public headers, so a documented signature cannot drift from the code.
+test(
+  'arena docs examples',
+  python,
+  args: [
+    files('docs/check_snippets.py'),
+    '--root', meson.project_source_root(),
+    '--lang', 'c',
+    '--prelude', '#include "arena.h"',
+    '--',
+  ] + meson.get_compiler('c').cmd_array() + [
+    '-std=c11',
+    '-Wall',
+    '-Wextra',
+    '-Wpedantic',
+    '-Werror',
+    '-Wno-unused-function',
+    '-Wno-unused-variable',
+    '-I' + (meson.project_source_root() / 'include'),
+    '-c', '{source}', '-o', '{object}',
+  ],
+  suite: 'docs',
+  timeout: 60,
+)
