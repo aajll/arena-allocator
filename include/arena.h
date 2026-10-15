@@ -7,9 +7,10 @@
  *    Deterministic arena (bump) allocator.
  *
  * This allocator gives you a *static* memory pool that can be used in a
- * safety critical environment.  Allocation is O(1) and never fails
- * (except when the pool is exhausted).  Deallocation is performed by a
- * whole arena reset or by rewinding to a previously saved checkpoint.
+ * safety critical environment.  Allocation is O(1), and fails only on an
+ * invalid argument or when the free space cannot hold the aligned request.
+ * Deallocation is performed by a whole arena reset or by rewinding to a
+ * previously saved checkpoint.
  *
  * Sizes, alignments, markers and usage figures count bytes in the C
  * sense: the units @c sizeof yields, each @c CHAR_BIT bits wide.  On a
@@ -17,7 +18,6 @@
  *
  *********************************************************************/
 
-/* MISRA C:2012 Dir 1.1: use standard include guard instead of #pragma once */
 #ifndef ARENA_H_
 #define ARENA_H_
 
@@ -79,8 +79,9 @@ typedef enum {
         ARENA_STATUS_OUT_OF_MEMORY =
             2, /**< Not enough space left in the arena */
         ARENA_STATUS_INVALID_ALIGNMENT =
-            3, /**< Alignment is not a power of two or is zero */
-        ARENA_STATUS_INVALID_ARGUMENT = 4 /**< size or buffer length is zero */
+            3, /**< A non-zero alignment is not a power of two */
+        ARENA_STATUS_INVALID_ARGUMENT =
+            4 /**< A size or count is zero, or a size overflows */
 } arena_status_t;
 
 /* ------------------------------------------------------------------ */
@@ -186,7 +187,8 @@ extern arena_status_t arena_init(arena_t *const arena, void *const buffer,
  *
  * @post If successful, *result points to allocated memory
  * @post If the function fails and @p result is non-NULL, *result is set to NULL
- * @post The arena used size is increased by the allocated size
+ * @post If successful, the arena used size is increased by @p size plus the
+ *       alignment padding
  *
  * @note The caller must never free the returned pointer individually.
  */

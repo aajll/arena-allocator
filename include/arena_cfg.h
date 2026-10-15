@@ -29,10 +29,10 @@
 
 /**
  * @def ARENA_CFG_DEBUG_POISON
- * @brief When set to 1, the whole buffer is filled with a known pattern
- *        on reset / rewind. This is invaluable for finding use-after-
- *        free bugs in unit tests, but should be disabled on final
- *        production builds.
+ * @brief When set to 1, arena_init fills the whole buffer with a known
+ *        pattern, and arena_reset and arena_rewind fill the free region.
+ *        This is invaluable for finding use-after-free bugs in unit
+ *        tests, but should be disabled on final production builds.
  */
 #ifndef ARENA_CFG_DEBUG_POISON
 #define ARENA_CFG_DEBUG_POISON (0U)

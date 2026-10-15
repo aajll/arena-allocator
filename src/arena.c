@@ -7,11 +7,8 @@
  *    Implementation of the deterministic arena allocator.
  *
  * All public functions are defined here, all internal helpers are
- * static (translation unit local).  The code follows MISRA C:2012
- * guidelines: every conversion is explicit, no undefined behaviour,
- * all limits are checked, and the implementation uses only the
- * standard C library sections that are typically allowed in safety
- * critical projects (stddef, stdint).
+ * static (translation unit local).  The MISRA C:2023 baselines, listed
+ * by rule, are in docs/design.md.
  *
  * The arena works with a *bump pointer* (current).  Allocation consists
  * of:
@@ -58,7 +55,6 @@ _Static_assert((ARENA_CFG_DEFAULT_ALIGNMENT != 0U)
 static inline bool
 is_power_of_two(const size_t value)
 {
-        /* MISRA Rule 12.2: bitwise operations are allowed on unsigned types */
         return ((value & (value - 1U)) == 0U);
 }
 
