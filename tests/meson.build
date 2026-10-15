@@ -3,6 +3,13 @@
 inc = include_directories('../include')
 python = import('python').find_installation('python3')
 
+# The project registers arena_dep under its pkg-config name, so any project in
+# the build resolves dependency('arena') to it without a fallback.
+assert(
+  dependency('arena', allow_fallback: false).type_name() == 'internal',
+  'dependency(\'arena\') must resolve to the registered arena_dep',
+)
+
 test_exe = executable('test_arena',
         'test_arena.c',
         'test_arena_api.c',
