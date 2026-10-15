@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: MIT
+
 project(
   'arena-allocator',
   'c',

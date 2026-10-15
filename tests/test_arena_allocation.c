@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file test_arena_allocation.c
  * @brief Allocation and capacity tests for the arena allocator.
  *********************************************************************/

@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file test_arena_api.c
  * @brief API validation tests for the arena allocator.
  *********************************************************************/

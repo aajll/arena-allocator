@@ -1,4 +1,6 @@
 /*********************************************************************
+ * SPDX-License-Identifier: MIT
+ *
  * @file install_smoke_consumer.c
  * @brief Minimal consumer used to validate staged installs.
  *********************************************************************/

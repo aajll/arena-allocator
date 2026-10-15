@@ -1,0 +1,53 @@
+{
+  "schema": "misch/baseline@2",
+  "fingerprints": {
+    "183d061787cf": {
+      "rule_id": "misra-c2012-8.7",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 12
+    },
+    "6e0a459f181e": {
+      "rule_id": "misra-c2012-11.6",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 1
+    },
+    "8f3184ee462e": {
+      "rule_id": "misra-c2012-2.5",
+      "file": "include/arena.h",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 4
+    },
+    "927e694a27af": {
+      "rule_id": "misra-c2012-17.8",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 1
+    },
+    "a5944804ff5a": {
+      "rule_id": "misra-c2012-11.4",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 1
+    },
+    "c8102ae06b5e": {
+      "rule_id": "misra-c2012-11.5",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 2
+    },
+    "d820bec63cec": {
+      "rule_id": "misra-c2012-15.5",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 21
+    },
+    "d843126bd99c": {
+      "rule_id": "misra-c2012-18.4",
+      "file": "src/arena.c",
+      "message": "misra violation (use --rule-texts=<file> to get proper output)",
+      "count": 2
+    }
+  }
+}

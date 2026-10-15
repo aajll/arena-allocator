@@ -350,9 +350,8 @@ extern size_t arena_get_capacity(const arena_t *const arena);
  *
  * @return Pointer to the allocated block, or NULL on any failure.
  */
-extern void *arena_alloc_array_ptr(arena_t *const arena,
-                                   size_t element_size, size_t alignment,
-                                   size_t count);
+extern void *arena_alloc_array_ptr(arena_t *const arena, size_t element_size,
+                                   size_t alignment, size_t count);
 
 /**
  * @brief Allocate a zero-initialised array and return the pointer directly.
@@ -406,7 +405,7 @@ extern arena_status_t arena_get_last_status(const arena_t *const arena);
  */
 #define ARENA_ALLOC_OBJECT(arena, result, type)                                \
         ((*(result) = arena_alloc_array_ptr((arena), sizeof(type),             \
-                                            _Alignof(type), 1U)),             \
+                                            _Alignof(type), 1U)),              \
          arena_get_last_status(arena))
 
 /**
@@ -417,7 +416,7 @@ extern arena_status_t arena_get_last_status(const arena_t *const arena);
  */
 #define ARENA_ALLOC_ARRAY(arena, result, type, count)                          \
         ((*(result) = arena_alloc_array_ptr((arena), sizeof(type),             \
-                                            _Alignof(type), (count))),        \
+                                            _Alignof(type), (count))),         \
          arena_get_last_status(arena))
 
 /**
@@ -428,7 +427,7 @@ extern arena_status_t arena_get_last_status(const arena_t *const arena);
  */
 #define ARENA_ALLOC_OBJECT_ZERO(arena, result, type)                           \
         ((*(result) = arena_alloc_array_zero_ptr((arena), sizeof(type),        \
-                                                 _Alignof(type), 1U)),        \
+                                                 _Alignof(type), 1U)),         \
          arena_get_last_status(arena))
 
 /**
@@ -440,7 +439,7 @@ extern arena_status_t arena_get_last_status(const arena_t *const arena);
  */
 #define ARENA_ALLOC_ARRAY_ZERO(arena, result, type, count)                     \
         ((*(result) = arena_alloc_array_zero_ptr((arena), sizeof(type),        \
-                                                 _Alignof(type), (count))),   \
+                                                 _Alignof(type), (count))),    \
          arena_get_last_status(arena))
 
 /**

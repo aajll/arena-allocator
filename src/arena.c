@@ -335,8 +335,7 @@ arena_alloc_array_zero_ptr(arena_t *const arena, const size_t element_size,
 arena_status_t
 arena_get_last_status(const arena_t *const arena)
 {
-        return (arena != NULL) ? arena->last_status
-                               : ARENA_STATUS_NULL_POINTER;
+        return (arena != NULL) ? arena->last_status : ARENA_STATUS_NULL_POINTER;
 }
 
 arena_marker_t
