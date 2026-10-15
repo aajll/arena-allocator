@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- `arena.h` defines `ARENA_VERSION_MAJOR`, `_MINOR`, `_PATCH`, `ARENA_VERSION`, `ARENA_VERSION_STRING` and a new `ARENA_VERSION_NUMBER` (`long`, `MAJOR * 10000 + MINOR * 100 + PATCH`), so a copied-in header carries its version. `arena_version.h` is no longer generated; it is installed as a deprecated header that includes `arena.h`. Meson fails to configure when the header and `project(version:)` disagree, and the build needs Meson 0.57 or later.
+- `arena.h` defines `ARENA_VERSION_MAJOR`, `_MINOR`, `_PATCH`, `ARENA_VERSION` and the new `ARENA_VERSION_STRING` and `ARENA_VERSION_NUMBER` (`long`, `MAJOR * 10000 + MINOR * 100 + PATCH`), so a copied-in header carries its version. `arena_version.h` is no longer generated; it is installed as a deprecated header that includes `arena.h`. Meson fails to configure when the header and `project(version:)` disagree, and the build needs Meson 0.57 or later.
 - `arena.h` and `arena_cfg.h` install under `${includedir}/arena/`, next to `arena_version.h` and where the pkg-config file already points.
 - CI gates line and branch coverage at 100 %. Two defensive checks that no input could reach are removed: the internal size helper's NULL check and the post-alignment wrap check, which `align_up()` already prevents.
 - `arena_t` gains a `last_status` field. Its fields remain internal, so code that declares arenas and uses the API is unaffected.
