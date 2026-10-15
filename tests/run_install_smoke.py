@@ -58,11 +58,10 @@ def main() -> int:
         include_root = header.parent.parent
         lib_path = find_single_path(destdir, "libarena.a")
 
-        for name in ("arena_cfg.h", "arena_version.h"):
-            if not (header.parent / name).is_file():
-                print(f"FAIL: {name} not installed under arena/",
-                      file=sys.stderr)
-                return 1
+        if not (header.parent / "arena_cfg.h").is_file():
+            print("FAIL: arena_cfg.h not installed under arena/",
+                  file=sys.stderr)
+            return 1
 
         # Subdirectory path, root forwarding header, and the pkg-config
         # include path (which points into arena/).

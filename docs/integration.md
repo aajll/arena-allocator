@@ -56,8 +56,6 @@ The install contains the static archive `libarena.a`, the headers in an `arena/`
 #include "arena.h"
 ```
 
-`arena_version.h` is installed beside it as a deprecated header that includes `arena.h`.
-
 Forwarding headers at `${includedir}/arena.h` and `${includedir}/arena_cfg.h` keep `#include <arena.h>` working without `pkg-config`. They are deprecated and will be removed in the next major release.
 
 ## Configuration

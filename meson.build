@@ -44,7 +44,6 @@ arena_dep = declare_dependency(include_directories: arena_inc, link_with: arena_
 install_headers(
   'include/arena.h',
   'include/arena_cfg.h',
-  'include/arena_version.h',
   subdir: 'arena',
 )
 
