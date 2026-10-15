@@ -40,6 +40,7 @@ arena_lib = static_library(
 )
 
 arena_dep = declare_dependency(include_directories: arena_inc, link_with: arena_lib)
+meson.override_dependency('arena', arena_dep)
 
 install_headers(
   'include/arena.h',

@@ -34,7 +34,7 @@ Put the repository in `subprojects/arena-allocator`, as a checkout or through a 
 arena_dep = dependency('arena', fallback: ['arena-allocator', 'arena_dep'])
 ```
 
-`dependency('arena')` finds an installed package through `pkg-config`, and otherwise falls back to the subproject's `arena_dep` variable, which links the static library and adds `include/`.
+`dependency('arena')` finds an installed package through `pkg-config`, and otherwise falls back to the subproject's `arena_dep` variable, which links the static library and adds `include/`. Once the subproject is configured it registers `arena_dep` as `arena`, so other subprojects in the same build get it from `dependency('arena')` without a fallback.
 
 | Option | Default | Effect |
 | --- | --- | --- |
