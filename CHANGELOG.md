@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - CI gates line and branch coverage at 100 %. Two defensive checks that no input could reach are removed: the internal size helper's NULL check and the post-alignment wrap check, which `align_up()` already prevents.
 - `arena_t` gains a `last_status` field. Its fields remain internal, so code that declares arenas and uses the API is unaffected.
 - CI runs a MISRA C:2023 analysis with `misch`, for the default build and with `ARENA_CFG_DEBUG_POISON`, against baselines in `analysis/baseline/` that record the existing findings, and checks formatting with the clang-format release pinned in `scripts/format.sh`. Three declarations and macros are reformatted to match it.
+- The README is a short landing page, with the integration guide, API reference and design record in `docs/`. `CONTRIBUTING.md` and `AGENTS.md` follow the same layout, and an `arena docs examples` test compiles every C example in the documentation.
 - CI installs Meson, Ninja and gcovr with `uv` instead of `pip`, and the Meson files and tests carry SPDX licence headers.
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
 
