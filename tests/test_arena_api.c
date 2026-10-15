@@ -5,7 +5,6 @@
  * @brief API validation tests for the arena allocator.
  *********************************************************************/
 
-#include "arena_version.h"
 #include "test_arena.h"
 
 static bool test_invalid_alignment(void);
@@ -332,7 +331,7 @@ test_remaining_error_paths(void)
         return passed;
 }
 
-/* The deprecated version header still exposes the macros from arena.h. */
+/* The version number agrees with its parts. */
 static bool
 test_version_macros(void)
 {

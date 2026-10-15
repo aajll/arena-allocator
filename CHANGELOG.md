@@ -14,14 +14,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- `arena.h` defines `ARENA_VERSION_MAJOR`, `_MINOR`, `_PATCH`, `ARENA_VERSION` and the new `ARENA_VERSION_STRING` and `ARENA_VERSION_NUMBER` (`long`, `MAJOR * 10000 + MINOR * 100 + PATCH`), so a copied-in header carries its version. `arena_version.h` is no longer generated; it is installed as a deprecated header that includes `arena.h`. Meson fails to configure when the header and `project(version:)` disagree, and the build needs Meson 0.57 or later.
-- `arena.h` and `arena_cfg.h` install under `${includedir}/arena/`, next to `arena_version.h` and where the pkg-config file already points.
+- `arena.h` defines `ARENA_VERSION_MAJOR`, `_MINOR`, `_PATCH`, `ARENA_VERSION` and the new `ARENA_VERSION_STRING` and `ARENA_VERSION_NUMBER` (`long`, `MAJOR * 10000 + MINOR * 100 + PATCH`), so a copied-in header carries its version. Meson fails to configure when the header and `project(version:)` disagree, and the build needs Meson 0.57 or later.
+- `arena.h` and `arena_cfg.h` install under `${includedir}/arena/`, where the pkg-config file already points.
 - CI gates line and branch coverage at 100 %. Two defensive checks that no input could reach are removed: the internal size helper's NULL check and the post-alignment wrap check, which `align_up()` already prevents.
 - `arena_t` gains a `last_status` field. Its fields remain internal, so code that declares arenas and uses the API is unaffected.
 - CI runs a MISRA C:2023 analysis with `misch`, for the default build and with `ARENA_CFG_DEBUG_POISON`, against baselines in `analysis/baseline/` that record the existing findings, and checks formatting with the clang-format release pinned in `scripts/format.sh`. Three declarations and macros are reformatted to match it.
 - The README is a short landing page, with the integration guide, API reference and design record in `docs/`. `CONTRIBUTING.md` and `AGENTS.md` follow the same layout, and an `arena docs examples` test compiles every C example in the documentation.
 - CI installs Meson, Ninja and gcovr with `uv` instead of `pip`, and the Meson files and tests carry SPDX licence headers.
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
+
+
+### Removed
+
+- `arena_version.h`. `arena.h` defines the version macros.
 
 ### Deprecated
 
@@ -30,7 +35,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 
 - `ARENA_ALLOC_OBJECT`, `ARENA_ALLOC_ARRAY` and their `_ZERO` variants no longer cast the result to `void **`, which stored a `void *` into a typed pointer object (undefined behaviour under the aliasing rules) and accepted non-pointer results. They assign through ordinary conversion and still evaluate to `arena_status_t`. The `arena` argument is now evaluated twice.
-- `arena_version.h` now defines `ARENA_VERSION` as a single string literal and `ARENA_VERSION_MAJOR`, `_MINOR` and `_PATCH` as integers, so the macros compile when used.
 
 ## [1.1.8] - 2026-03-10
 

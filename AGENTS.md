@@ -45,7 +45,7 @@ Coverage commands are in `CONTRIBUTING.md`.
 
 ### 1.2 Notes
 
-- `include/arena.h` defines the version macros, and `meson setup` fails when they differ from `project(version:)`, so a release updates both. `include/arena_version.h` is a deprecated header that includes `arena.h`.
+- `include/arena.h` defines the version macros, and `meson setup` fails when they differ from `project(version:)`, so a release updates both.
 - The build produces only a static library, installed as `libarena.a` with headers under `arena/`, deprecated forwarding headers at the include root, and `arena.pc`. The only Meson option is `build_tests`.
 - The `ARENA_CFG_*` macros are read only by `src/arena.c` and do not change `arena_t`. Set them where the library is compiled.
 

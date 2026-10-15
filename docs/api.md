@@ -226,4 +226,4 @@ The figure includes the alignment padding, which depends on where the buffer is 
 #endif
 ```
 
-`ARENA_VERSION_STRING` is the same string as `ARENA_VERSION`. `arena_version.h` is a deprecated header that includes `arena.h`, kept so existing includes compile until the next major release.
+`ARENA_VERSION_STRING` is the same string as `ARENA_VERSION`.
