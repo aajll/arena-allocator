@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-22
+
 ### Added
 
 - Support for targets where `CHAR_BIT == 16`: the buffer pointer, fill helper and poison cache use `unsigned char` instead of `uint8_t`, and the 8-bit-byte assertion is gone. Layout is unchanged on byte-addressed targets.
@@ -23,14 +25,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - CI installs Meson, Ninja and gcovr with `uv` instead of `pip`, and the Meson files and tests carry SPDX licence headers.
 - Standardised project metadata, SPDX headers, security policy, pkg-config generation, installed version header, contributor guidance, and CI coverage thresholds with the primitive family baseline.
 
+### Deprecated
+
+- The forwarding headers installed at `${includedir}/arena.h` and `${includedir}/arena_cfg.h`. Include `<arena/arena.h>` or use the pkg-config include path; the forwarders will be removed in the next major release.
 
 ### Removed
 
 - `arena_version.h`. `arena.h` defines the version macros.
-
-### Deprecated
-
-- The forwarding headers installed at `${includedir}/arena.h` and `${includedir}/arena_cfg.h`. Include `<arena/arena.h>` or use the pkg-config include path; the forwarders will be removed in the next major release.
 
 ### Fixed
 
